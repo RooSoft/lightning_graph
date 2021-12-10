@@ -53,7 +53,7 @@ defmodule LightningGraph.Neo4j.Query do
 
   Examples
 
-  iex> LnImport.Neo4j.get_connection |> LnImport.Neo4j.Query.get_common_peers("WalletOfSatoshi.com", "BCash_Is_Trash")
+  iex> LightningGraph.Neo4j.get_connection |> LightningGraph.Neo4j.Query.get_common_peers("WalletOfSatoshi.com", "BCash_Is_Trash")
   """
   def get_common_peers conn, node1_alias, node2_alias do
     query = """
