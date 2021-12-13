@@ -3,6 +3,20 @@ defmodule LightningGraph.Neo4j.DataAnalyzer do
 
   @graph_name "myGraph"
 
+  def create_is_local conn, alias do
+    Logger.info("Adding is_local property to #{alias}")
+
+    query = """
+      MATCH (n)
+      SET n.is_local = (CASE WHEN n.alias='#{alias}' THEN 1 ELSE 0 END)
+      RETURN n.alias, n.is_local
+    """
+
+    { _, _ } = Bolt.Sips.query(conn, query)
+
+    conn
+  end
+
   def delete_graph conn do
     Logger.info("Destroying previous Data Analysis graph")
 
@@ -21,7 +35,10 @@ defmodule LightningGraph.Neo4j.DataAnalyzer do
     query = """
     CALL gds.graph.create('#{@graph_name}', 'node',
       { CHANNEL: { } },
-      { relationshipProperties: ['capacity', 'fee_rate'] }
+      {
+        nodeProperties: ['is_local', 'channel_count'],
+        relationshipProperties: ['capacity', 'fee_rate', 'is_disabled']
+      }
     )
     """
 
