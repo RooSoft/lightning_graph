@@ -17,6 +17,19 @@ defmodule LightningGraph.Neo4j.DataAnalyzer do
     conn
   end
 
+  def add_is_failing conn do
+    Logger.info("Adding is_failing = 0 property to all channels")
+
+    query = """
+      MATCH ()-[c:CHANNEL]-()
+      SET c.is_failing = 0
+    """
+
+    { _, _ } = Bolt.Sips.query(conn, query)
+
+    conn
+  end
+
   def delete_graph conn do
     Logger.info("Destroying previous Data Analysis graph")
 
@@ -37,7 +50,7 @@ defmodule LightningGraph.Neo4j.DataAnalyzer do
       { CHANNEL: { } },
       {
         nodeProperties: ['is_local', 'channel_count'],
-        relationshipProperties: ['capacity', 'fee_rate', 'base_fee', 'is_disabled']
+        relationshipProperties: ['capacity', 'fee_rate', 'base_fee', 'is_disabled', 'is_failing']
       }
     )
     """
