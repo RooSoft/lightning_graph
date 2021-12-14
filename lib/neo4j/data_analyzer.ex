@@ -37,7 +37,7 @@ defmodule LightningGraph.Neo4j.DataAnalyzer do
       { CHANNEL: { } },
       {
         nodeProperties: ['is_local', 'channel_count'],
-        relationshipProperties: ['capacity', 'fee_rate', 'is_disabled']
+        relationshipProperties: ['capacity', 'fee_rate', 'base_fee', 'is_disabled']
       }
     )
     """
