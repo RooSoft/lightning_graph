@@ -69,7 +69,7 @@ defmodule LightningGraph.Neo4j.DataAnalyzer do
       '#{subgraph_name}',
       '#{graph_name}',
       'n.is_local = 0 AND n.channel_count > 1',
-      'r.capacity >= 2000000 AND r.fee_rate < 50 AND r.base_fee <= 10 AND r.is_disabled = 0 AND r.is_failing = 0'
+      'r.capacity >= 2000000 AND r.fee_rate < 50 AND r.base_fee <= 1000 AND r.is_disabled = 0 AND r.is_failing = 0'
     )
     YIELD graphName, fromGraphName, nodeCount, relationshipCount
     """
