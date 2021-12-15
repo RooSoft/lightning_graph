@@ -15,7 +15,7 @@ defmodule LightningGraph.Neo4j.Query do
     end)
   end
 
-  def get_longest_paths conn, pub_key do
+  def get_longest_paths conn, graph, pub_key do
     Logger.info("Getting longest paths to #{pub_key}")
 
     query = """
@@ -25,7 +25,7 @@ defmodule LightningGraph.Neo4j.Query do
       RETURN nice
     }
     MATCH (source:node {pub_key: '#{pub_key}'}), (nice)
-    CALL gds.shortestPath.dijkstra.stream('myGraph', {
+    CALL gds.shortestPath.dijkstra.stream('#{graph}', {
         sourceNode: source,
         targetNode: nice
     })
@@ -69,11 +69,11 @@ defmodule LightningGraph.Neo4j.Query do
     end)
   end
 
-  def get_cheapest_routes conn, route_count, node1_pub_key, node2_pub_key do
+  def get_cheapest_routes conn, graph, route_count, node1_pub_key, node2_pub_key do
     query = """
     MATCH   (source:node {pub_key: '#{node1_pub_key}'}),
             (target:node {pub_key: '#{node2_pub_key}'})
-    CALL gds.shortestPath.yens.stream('myGraph', {
+    CALL gds.shortestPath.yens.stream('#{graph}', {
         sourceNode: source,
         targetNode: target,
         k: #{route_count+1},
