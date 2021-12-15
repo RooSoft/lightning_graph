@@ -1,7 +1,7 @@
 defmodule LightningGraph.Neo4j.DataAnalyzer do
   require Logger
 
-  @graph_name "myGraph"
+  @default_graph_name "myGraph"
 
   def create_is_local conn, alias do
     Logger.info("Adding is_local property to #{alias}")
@@ -30,11 +30,11 @@ defmodule LightningGraph.Neo4j.DataAnalyzer do
     conn
   end
 
-  def delete_graph conn do
+  def delete_graph conn, graph_name \\ @default_graph_name do
     Logger.info("Destroying previous Data Analysis graph")
 
     query = """
-      CALL gds.graph.drop('#{@graph_name}')
+      CALL gds.graph.drop('#{graph_name}')
     """
 
     { _, _ } = Bolt.Sips.query(conn, query)
@@ -42,11 +42,11 @@ defmodule LightningGraph.Neo4j.DataAnalyzer do
     conn
   end
 
-  def create_graph conn do
+  def create_graph conn, graph_name \\ @default_graph_name do
     Logger.info("Creating Data Analysis graph")
 
     query = """
-    CALL gds.graph.create('#{@graph_name}', 'node',
+    CALL gds.graph.create('#{graph_name}', 'node',
       { CHANNEL: { } },
       {
         nodeProperties: ['is_local', 'channel_count'],
@@ -60,11 +60,11 @@ defmodule LightningGraph.Neo4j.DataAnalyzer do
     conn
   end
 
-  def add_community_ids conn do
+  def add_community_ids conn, graph_name \\ @default_graph_name do
     Logger.info("Adding community ids to nodes")
 
     query = """
-    CALL gds.louvain.write('#{@graph_name}', {
+    CALL gds.louvain.write('#{graph_name}', {
       writeProperty: 'community',
       relationshipWeightProperty: 'capacity'
     })
@@ -75,11 +75,11 @@ defmodule LightningGraph.Neo4j.DataAnalyzer do
     conn
   end
 
-  def add_betweenness_score conn do
+  def add_betweenness_score conn, graph_name \\ @default_graph_name do
     Logger.info("Adding betweenness scores to nodes")
 
     query = """
-    CALL gds.betweenness.write('#{@graph_name}', { writeProperty: 'betweenness' })
+    CALL gds.betweenness.write('#{graph_name}', { writeProperty: 'betweenness' })
     YIELD centralityDistribution, nodePropertiesWritten
     RETURN
       centralityDistribution.min AS minimumScore,
