@@ -1,7 +1,22 @@
 defmodule LightningGraph.Neo4j.Query do
   require Logger
 
-  def get_community_members conn, community_id do
+  def get_node_by_alias(conn, node_alias) do
+    query = """
+    MATCH (n:node {alias: "#{node_alias}"})
+    RETURN n
+    """
+
+    %Bolt.Sips.Response{results: results} = Bolt.Sips.query!(conn, query)
+
+    results
+    |> Enum.map(fn result ->
+      result["n"].properties
+    end)
+    |> List.first()
+  end
+
+  def get_community_members(conn, community_id) do
     query = """
     MATCH (n:node {community: #{community_id}})
     RETURN n
@@ -15,7 +30,7 @@ defmodule LightningGraph.Neo4j.Query do
     end)
   end
 
-  def get_longest_paths conn, graph, pub_key do
+  def get_longest_paths(conn, graph, pub_key) do
     Logger.info("Getting longest paths to #{pub_key}")
 
     query = """
@@ -55,7 +70,7 @@ defmodule LightningGraph.Neo4j.Query do
 
   iex> LightningGraph.Neo4j.get_connection |> LightningGraph.Neo4j.Query.get_common_peers("WalletOfSatoshi.com", "BCash_Is_Trash")
   """
-  def get_common_peers conn, node1_alias, node2_alias do
+  def get_common_peers(conn, node1_alias, node2_alias) do
     query = """
     MATCH (r:node {alias: '#{node1_alias}'})-[]-(x:node)-[]-(node {alias:'#{node2_alias}'})
     RETURN DISTINCT x
@@ -69,25 +84,26 @@ defmodule LightningGraph.Neo4j.Query do
     end)
   end
 
-  def get_cheapest_routes conn, graph, route_count, node1_pub_key, node2_pub_key do
+  def get_cheapest_routes(conn, graph, route_count, node1_pub_key, node2_pub_key) do
     query = """
-    MATCH   (source:node {pub_key: '#{node1_pub_key}'}),
-            (target:node {pub_key: '#{node2_pub_key}'})
-    CALL gds.shortestPath.yens.stream('#{graph}', {
-        sourceNode: source,
-        targetNode: target,
-        k: #{route_count+1},
-        relationshipWeightProperty: 'fee_rate'
-    })
-    YIELD index, totalCost, nodeIds, costs, path
-    RETURN
-        index,
-        totalCost,
-        [nodeId IN nodeIds | gds.util.asNode(nodeId).pub_key] AS pubKeys,
-        costs
-    ORDER BY index
-    SKIP 1
-"""
+        MATCH   (source:node {pub_key: '#{node1_pub_key}'}),
+                (target:node {pub_key: '#{node2_pub_key}'})
+        CALL gds.shortestPath.yens.stream('#{graph}', {
+            sourceNode: source,
+            targetNode: target,
+            k: #{route_count + 1},
+            relationshipWeightProperty: 'fee_rate'
+        })
+        YIELD index, totalCost, nodeIds, costs, path
+        RETURN
+            index,
+            totalCost,
+            [nodeId IN nodeIds | gds.util.asNode(nodeId).pub_key] AS pubKeys,
+            costs
+        ORDER BY index
+        SKIP 1
+    """
+
     %Bolt.Sips.Response{results: results} = Bolt.Sips.query!(conn, query)
 
     results
