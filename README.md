@@ -19,6 +19,10 @@ Lightning Network graph analysis tool
 
 using `config/config.exs`, returning `roosoft`'s node info
 
+```bash
+iex -S mix
+```
+
 ```elixir
 LightningGraph.Neo4j.get_connection 
 |> LightningGraph.Neo4j.Query.get_node_by_alias("roosoft")
