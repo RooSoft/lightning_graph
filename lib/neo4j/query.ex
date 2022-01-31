@@ -86,13 +86,13 @@ defmodule LightningGraph.Neo4j.Query do
 
   def get_cheapest_routes(conn, graph, route_count, node1_pub_key, node2_pub_key) do
     query = """
-        MATCH   (source:node {pub_key: '#{node1_pub_key}'}),
-                (target:node {pub_key: '#{node2_pub_key}'})
+        MATCH   (source:node {pub_key: "#{node1_pub_key}"}),
+                (target:node {pub_key: "#{node2_pub_key}"})
         CALL gds.shortestPath.yens.stream('#{graph}', {
             sourceNode: source,
             targetNode: target,
             k: #{route_count + 1},
-            relationshipWeightProperty: 'fee_rate'
+            relationshipWeightProperty: "fee_rate"
         })
         YIELD index, totalCost, nodeIds, costs, path
         RETURN
