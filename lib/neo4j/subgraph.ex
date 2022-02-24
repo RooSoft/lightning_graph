@@ -34,11 +34,11 @@ defmodule LightningGraph.Neo4j.Subgraph do
     conn
   end
 
-  def convert_boolean(true) do
+  defp convert_boolean(true) do
     1
   end
 
-  def convert_boolean(false) do
+  defp convert_boolean(false) do
     0
   end
 end
