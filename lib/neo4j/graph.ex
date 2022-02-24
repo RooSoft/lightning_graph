@@ -30,4 +30,30 @@ defmodule LightningGraph.Neo4j.Graph do
 
     conn
   end
+
+  def list(conn) do
+    Logger.info("List graphs")
+
+    query = """
+      CALL gds.graph.list();
+    """
+
+    %Bolt.Sips.Response{results: results} = Bolt.Sips.query!(conn, query)
+
+    results
+    |> Enum.map(&convert_graph/1)
+  end
+
+  defp convert_graph(neo4j_graph) do
+    %{
+      name: neo4j_graph["graphName"],
+      database: neo4j_graph["database"],
+      memory_usage: neo4j_graph["memoryUsage"],
+      size: neo4j_graph["sizeInBytes"],
+      creation_time: neo4j_graph["creationTime"],
+      modification_time: neo4j_graph["modificationTime"],
+      node_count: neo4j_graph["nodeCount"],
+      relationship_count: neo4j_graph["relationshipCount"]
+    }
+  end
 end
