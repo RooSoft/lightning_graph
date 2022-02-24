@@ -22,8 +22,9 @@ defmodule LightningGraph.Neo4j.Graph do
   def delete(conn, graph_name) do
     Logger.info("Destroying previous Data Analysis graph")
 
+    # The false parameter is to prevent the call from raising an error
     query = """
-      CALL gds.graph.drop('#{graph_name}')
+      CALL gds.graph.drop('#{graph_name}', false)
     """
 
     {_, _} = Bolt.Sips.query(conn, query)
