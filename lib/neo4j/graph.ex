@@ -44,6 +44,20 @@ defmodule LightningGraph.Neo4j.Graph do
     |> Enum.map(&convert_graph/1)
   end
 
+  def find(conn, graph_name) do
+    Logger.info("Find #{graph_name} graph")
+
+    query = """
+      CALL gds.graph.list('#{graph_name}');
+    """
+
+    %Bolt.Sips.Response{results: results} = Bolt.Sips.query!(conn, query)
+
+    results
+    |> Enum.map(&convert_graph/1)
+    |> List.first()
+  end
+
   defp convert_graph(neo4j_graph) do
     %{
       name: neo4j_graph["graphName"],
