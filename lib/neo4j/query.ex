@@ -1,6 +1,19 @@
 defmodule LightningGraph.Neo4j.Query do
   require Logger
 
+  def get_number_of_nodes(conn) do
+    query = """
+    MATCH (n:node)
+    RETURN count(n);
+    """
+
+    %Bolt.Sips.Response{results: results} = Bolt.Sips.query!(conn, query)
+
+    results
+    |> List.first()
+    |> Map.get("count(n)")
+  end
+
   def get_node_by_alias(conn, node_alias) do
     query = """
     MATCH (n:node {alias: "#{node_alias}"})
