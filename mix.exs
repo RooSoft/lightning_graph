@@ -14,14 +14,15 @@ defmodule LightningGraph.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :inets, :ssl]
     ]
   end
 
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:bolt_sips, "~> 2.0"}
+      {:bolt_sips, "~> 2.0"},
+      {:jason, "~> 1.2"}
     ]
   end
 end
