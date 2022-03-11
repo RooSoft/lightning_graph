@@ -1,14 +1,12 @@
 defmodule LightningGraph.Neo4j.Node do
-  def update(conn, %{
-        pub_key: pub_key,
-        alias: node_alias,
-        color: color
-      }) do
-    query = """
-    MATCH (n:node {pub_key:"#{pub_key}"})
-    SET n += { alias: "#{node_alias}", color: "#{color}" }
-    RETURN n;
-    """
+  def update(conn, node_update) do
+    query =
+      """
+      MATCH (n:node {pub_key:"#{node_update.identity_key}"})
+      SET n += { alias: "#{node_update.alias}", color: "#{node_update.color}" }
+      RETURN n;
+      """
+      |> IO.inspect()
 
     Bolt.Sips.query!(conn, query)
   end
