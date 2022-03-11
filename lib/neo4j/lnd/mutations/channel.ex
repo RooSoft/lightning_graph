@@ -1,4 +1,6 @@
 defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
+  require Logger
+
   def update(conn, channel_edge_update) do
     routing_policy = channel_edge_update.routing_policy
 
@@ -15,6 +17,8 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
     SET c += { #{set_statement} }
     RETURN c;
     """
+
+    Logger.info("Updated the #{channel_edge_update.chan_id} channel")
 
     Bolt.Sips.query!(conn, query)
   end

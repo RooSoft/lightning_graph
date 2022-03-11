@@ -21,6 +21,7 @@ defmodule LightningGraph.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:lnd_client, git: "https://github.com/RooSoft/lnd_client.git", tag: "0.1.2"},
       {:bolt_sips, "~> 2.0"},
       {:jason, "~> 1.2"}
     ]
