@@ -1,4 +1,4 @@
-defmodule LightningGraph.Neo4j.Channel do
+defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
   def update(conn, channel_edge_update) do
     routing_policy = channel_edge_update.routing_policy
 

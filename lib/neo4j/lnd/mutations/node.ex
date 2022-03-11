@@ -1,4 +1,4 @@
-defmodule LightningGraph.Neo4j.Node do
+defmodule LightningGraph.Neo4j.Lnd.Mutations.Node do
   def update(conn, node_update) do
     query =
       """
