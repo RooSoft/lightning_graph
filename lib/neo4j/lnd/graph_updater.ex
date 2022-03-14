@@ -33,10 +33,6 @@ defmodule LightningGraph.Neo4j.Lnd.GraphUpdater do
   end
 
   def handle_info(%Lnrpc.GraphTopologyUpdate{} = graph_topology_update, state) do
-    now = DateTime.utc_now() |> DateTime.to_string()
-
-    IO.puts("--graph-topology-update----#{now}---")
-
     graph_topology_update
     |> maybe_channel_updates
     |> maybe_closed_chans

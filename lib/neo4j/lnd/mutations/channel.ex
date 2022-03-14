@@ -18,7 +18,9 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
     RETURN c;
     """
 
-    Logger.info("Updated the #{channel_edge_update.chan_id} channel")
+    now = DateTime.utc_now() |> DateTime.to_string()
+
+    Logger.info("#{now} Updated the #{channel_edge_update.chan_id} channel")
 
     Bolt.Sips.query!(conn, query)
   end
