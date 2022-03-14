@@ -8,10 +8,8 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Node do
     RETURN n;
     """
 
-    now = DateTime.utc_now() |> DateTime.to_string()
-
-    Logger.info("#{now} Updated the #{node_update.identity_key} node (#{node_update.alias})")
-
     Bolt.Sips.query!(conn, query)
+
+    %{pub_key: node_update.identity_key, alias: node_update.alias}
   end
 end

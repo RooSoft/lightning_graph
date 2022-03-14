@@ -46,13 +46,12 @@ defmodule LightningGraph.Neo4j.Lnd.GraphUpdater do
   end
 
   def handle_info(%Lnrpc.GraphTopologyUpdate{} = graph_topology_update, state) do
-    graph_topology_update
-    |> maybe_channel_updates
-    |> maybe_closed_chans
-    |> maybe_node_updates
+    subscribers = state.subscribers
 
-    state.subscribers
-    |> send_to_subscribers({:graph_update, "Got a topology update"})
+    graph_topology_update
+    |> maybe_channel_updates(subscribers)
+    |> maybe_closed_chans(subscribers)
+    |> maybe_node_updates(subscribers)
 
     {:noreply, state}
   end
@@ -65,19 +64,22 @@ defmodule LightningGraph.Neo4j.Lnd.GraphUpdater do
   end
 
   defp maybe_channel_updates(
-         %Lnrpc.GraphTopologyUpdate{channel_updates: channel_updates} = graph_topology_update
+         %Lnrpc.GraphTopologyUpdate{channel_updates: channel_updates} = graph_topology_update,
+         subscribers
        ) do
     channel_updates
     |> Enum.each(fn channel_update ->
       LightningGraph.Neo4j.get_connection()
       |> LightningGraph.Neo4j.Lnd.Mutations.Channel.update(channel_update)
+      |> send_to_subscribers(subscribers, :channel_update)
     end)
 
     graph_topology_update
   end
 
   defp maybe_closed_chans(
-         %Lnrpc.GraphTopologyUpdate{closed_chans: closed_chans} = graph_topology_update
+         %Lnrpc.GraphTopologyUpdate{closed_chans: closed_chans} = graph_topology_update,
+         _subscribers
        ) do
     closed_chans
     |> Enum.each(&IO.inspect/1)
@@ -86,21 +88,23 @@ defmodule LightningGraph.Neo4j.Lnd.GraphUpdater do
   end
 
   defp maybe_node_updates(
-         %Lnrpc.GraphTopologyUpdate{node_updates: node_updates} = graph_topology_update
+         %Lnrpc.GraphTopologyUpdate{node_updates: node_updates} = graph_topology_update,
+         subscribers
        ) do
     node_updates
     |> Enum.each(fn node_update ->
       LightningGraph.Neo4j.get_connection()
       |> LightningGraph.Neo4j.Lnd.Mutations.Node.update(node_update)
+      |> send_to_subscribers(subscribers, :node_update)
     end)
 
     graph_topology_update
   end
 
-  defp send_to_subscribers(subscribers, message) do
+  defp send_to_subscribers(payload, subscribers, topic) do
     subscribers
     |> Enum.each(fn subscriber ->
-      send(subscriber, message)
+      send(subscriber, {:graph_updater, topic, payload})
     end)
   end
 end
