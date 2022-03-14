@@ -10,6 +10,10 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Node do
 
     Bolt.Sips.query!(conn, query)
 
-    %{pub_key: node_update.identity_key, alias: node_update.alias}
+    %{
+      pub_key: node_update.identity_key,
+      alias: node_update.alias,
+      color: node_update.color
+    }
   end
 end
