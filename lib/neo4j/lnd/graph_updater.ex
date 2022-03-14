@@ -4,14 +4,14 @@ defmodule LightningGraph.Neo4j.Lnd.GraphUpdater do
   require Logger
 
   def start_link(_) do
-    GenServer.start_link(__MODULE__, nil, name: __MODULE__)
+    GenServer.start_link(__MODULE__, %{subscribers: []}, name: __MODULE__)
   end
 
   def stop(reason \\ :normal, timeout \\ :infinity) do
     GenServer.stop(__MODULE__, reason, timeout)
   end
 
-  def init(_) do
+  def init(arg) do
     LndClient.start()
 
     node_uri = System.get_env("NODE") || "localhost:10009"
@@ -29,7 +29,20 @@ defmodule LightningGraph.Neo4j.Lnd.GraphUpdater do
         :error
     end
 
-    {:ok, nil}
+    {:ok, arg}
+  end
+
+  def subscribe() do
+    GenServer.call(__MODULE__, {:subscribe, self()})
+  end
+
+  def handle_call({:subscribe, pid}, _from, state) do
+    {
+      :reply,
+      :ok,
+      state
+      |> Map.put(:subscribers, [pid | state.subscribers])
+    }
   end
 
   def handle_info(%Lnrpc.GraphTopologyUpdate{} = graph_topology_update, state) do
@@ -37,6 +50,9 @@ defmodule LightningGraph.Neo4j.Lnd.GraphUpdater do
     |> maybe_channel_updates
     |> maybe_closed_chans
     |> maybe_node_updates
+
+    state.subscribers
+    |> send_to_subscribers({:graph_update, "Got a topology update"})
 
     {:noreply, state}
   end
@@ -79,5 +95,12 @@ defmodule LightningGraph.Neo4j.Lnd.GraphUpdater do
     end)
 
     graph_topology_update
+  end
+
+  defp send_to_subscribers(subscribers, message) do
+    subscribers
+    |> Enum.each(fn subscriber ->
+      send(subscriber, message)
+    end)
   end
 end
