@@ -22,6 +22,18 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
     channel_fields
   end
 
+  def delete(conn, lnd_id) do
+    query = """
+    MATCH (:node)-[c:CHANNEL {lnd_id: '#{lnd_id}'}]-(:node)
+    DELETE c;
+    """
+
+    Bolt.Sips.query!(conn, query)
+    |> IO.inspect()
+    |> Map.get(:stats, %{})
+    |> extract_number_of_deleted_relationships
+  end
+
   defp maybe_add(statement, nil, _field) do
     statement
   end
@@ -40,5 +52,13 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
       fee_rate: routing_policy.fee_rate_milli_msat,
       disabled: routing_policy.disabled
     }
+  end
+
+  defp extract_number_of_deleted_relationships([]) do
+    0
+  end
+
+  defp extract_number_of_deleted_relationships(%{"relationships-deleted" => count}) do
+    count
   end
 end
