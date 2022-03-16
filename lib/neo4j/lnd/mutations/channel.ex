@@ -29,9 +29,8 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
     """
 
     Bolt.Sips.query!(conn, query)
-    |> IO.inspect()
-    |> Map.get(:stats, %{})
-    |> extract_number_of_deleted_relationships
+
+    lnd_id
   end
 
   defp maybe_add(statement, nil, _field) do
@@ -52,13 +51,5 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
       fee_rate: routing_policy.fee_rate_milli_msat,
       disabled: routing_policy.disabled
     }
-  end
-
-  defp extract_number_of_deleted_relationships([]) do
-    0
-  end
-
-  defp extract_number_of_deleted_relationships(%{"relationships-deleted" => count}) do
-    count
   end
 end
