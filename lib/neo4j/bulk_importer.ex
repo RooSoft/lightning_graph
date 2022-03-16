@@ -47,7 +47,7 @@ defmodule LightningGraph.Neo4j.BulkImporter do
       LOAD CSV WITH HEADERS FROM 'file:///#{channels_csv_filename}' AS edge FIELDTERMINATOR ','
       MATCH (n1:node {pub_key: edge.node1_pub})
       MATCH (n2:node {pub_key: edge.node2_pub})
-      MERGE (n1)-[:CHANNEL {lnd_id: edge.channel_id, capacity: toInteger(edge.capacity), base_fee: toInteger(edge.base_fee), fee_rate: toInteger(edge.fee_rate), is_disabled: toInteger(edge.is_disabled), is_failing: 0}]->(n2)
+      MERGE (n1)-[:CHANNEL {lnd_id: toInteger(edge.channel_id), capacity: toInteger(edge.capacity), base_fee: toInteger(edge.base_fee), fee_rate: toInteger(edge.fee_rate), is_disabled: toInteger(edge.is_disabled), is_failing: 0}]->(n2)
       RETURN count(n1);
     """
 
