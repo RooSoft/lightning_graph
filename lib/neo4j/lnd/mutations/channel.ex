@@ -13,7 +13,7 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
       |> Enum.join(", ")
 
     query = """
-    MATCH (node)-[c:CHANNEL {lnd_id: "#{channel_edge_update.chan_id}"}]-(node)
+    MATCH (node)-[c:CHANNEL {lnd_id: #{channel_edge_update.chan_id}}]-(node)
     SET c += { #{set_statement} };
     """
 
@@ -24,7 +24,7 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
 
   def delete(conn, lnd_id) do
     query = """
-    MATCH (:node)-[c:CHANNEL {lnd_id: '#{lnd_id}'}]-(:node)
+    MATCH (:node)-[c:CHANNEL {lnd_id: #{lnd_id}}]-(:node)
     DELETE c;
     """
 
