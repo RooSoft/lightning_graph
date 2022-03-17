@@ -18,8 +18,6 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
     SET c += { #{set_statement} };
     """
 
-    IO.puts(query)
-
     Bolt.Sips.query!(conn, query)
 
     channel_fields
