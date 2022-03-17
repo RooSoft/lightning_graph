@@ -10,12 +10,15 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
       |> maybe_add(channel_fields.base_fee, "base_fee")
       |> maybe_add(channel_fields.fee_rate, "fee_rate")
       |> maybe_add(channel_fields.disabled, "disabled")
+      |> add_current_date
       |> Enum.join(", ")
 
     query = """
-    MATCH (node)-[c:CHANNEL {lnd_id: #{channel_edge_update.chan_id}}]-(node)
+    MATCH (:node)-[c:CHANNEL {lnd_id: #{channel_edge_update.chan_id}}]-(:node)
     SET c += { #{set_statement} };
     """
+
+    IO.puts(query)
 
     Bolt.Sips.query!(conn, query)
 
@@ -39,6 +42,10 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
 
   defp maybe_add(statement, value, field) do
     ["#{field}: \"#{value}\"" | statement]
+  end
+
+  defp add_current_date(statement) do
+    ["updated: \"#{DateTime.utc_now() |> DateTime.to_string()}\"" | statement]
   end
 
   defp convert(channel_edge_update) do
