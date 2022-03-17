@@ -25,7 +25,8 @@ defmodule LightningGraph.Neo4j.BulkImporter do
       CREATE (:node {
         pub_key: node.pub_key,
         alias: node.alias,
-        color: node.color
+        color: node.color,
+        updated: "#{DateTime.utc_now() |> DateTime.to_string()}"
       });
     """
 
