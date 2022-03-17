@@ -26,7 +26,7 @@ defmodule LightningGraph.Neo4j.BulkImporter do
         pub_key: node.pub_key,
         alias: node.alias,
         color: node.color,
-        updated: "#{DateTime.utc_now() |> DateTime.to_string()}"
+        updated: datetime("#{DateTime.utc_now() |> DateTime.to_iso8601()}")
       });
     """
 
@@ -55,7 +55,7 @@ defmodule LightningGraph.Neo4j.BulkImporter do
         fee_rate: toInteger(edge.fee_rate),
         is_disabled: toInteger(edge.is_disabled),
         is_failing: 0,
-        updated: "#{DateTime.utc_now() |> DateTime.to_string()}"
+        updated: datetime("#{DateTime.utc_now() |> DateTime.to_iso8601()}")
       }]->(n2)
       RETURN count(n1);
     """

@@ -43,7 +43,7 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Channel do
   end
 
   defp add_current_date(statement) do
-    ["updated: \"#{DateTime.utc_now() |> DateTime.to_string()}\"" | statement]
+    ["updated: datetime(\"#{DateTime.utc_now() |> DateTime.to_iso8601()}\")" | statement]
   end
 
   defp convert(channel_edge_update) do

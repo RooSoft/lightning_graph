@@ -7,7 +7,7 @@ defmodule LightningGraph.Neo4j.Lnd.Mutations.Node do
     SET n += {
       alias: "#{node_update.alias}",
       color: "#{node_update.color}",
-      updated: "#{DateTime.utc_now() |> DateTime.to_string()}"
+      updated: datetime("#{DateTime.utc_now() |> DateTime.to_iso8601()}")
     }
     RETURN n;
     """
