@@ -97,6 +97,33 @@ defmodule LightningGraph.Neo4j.Query do
     end)
   end
 
+  def get_common_peers_rates(conn, node1_alias, node2_alias) do
+    query = """
+    MATCH
+      (:node {alias: '#{node1_alias}'})
+      -[]->
+      (n:node)
+      -[c:CHANNEL]->
+      (b:node {alias: '#{node2_alias}'})
+    RETURN
+      n.alias as peerAlias,
+      c.base_fee as baseFee,
+      c.fee_rate as feeRate
+    ORDER BY toInteger(c.fee_rate);
+    """
+
+    %Bolt.Sips.Response{results: results} = Bolt.Sips.query!(conn, query)
+
+    results
+    |> Enum.map(fn result ->
+      %{
+        peer_alias: result["peerAlias"],
+        base_fee: result["baseFee"],
+        fee_rate: result["feeRate"]
+      }
+    end)
+  end
+
   def get_cheapest_routes(conn, graph, route_count, node1_pub_key, node2_pub_key) do
     query = """
         MATCH   (source:node {pub_key: "#{node1_pub_key}"}),
