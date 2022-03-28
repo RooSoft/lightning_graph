@@ -101,12 +101,14 @@ defmodule LightningGraph.Neo4j.Query do
     query = """
     MATCH
       (:node {alias: '#{node1_alias}'})
-      -[]->
+      -[sc:CHANNEL]->
       (n:node)
       -[c:CHANNEL]->
       (b:node {alias: '#{node2_alias}'})
     RETURN
       n.alias as peerAlias,
+      n.pub_key as peerPubKey,
+      sc.lnd_id as startChannelId,
       c.base_fee as baseFee,
       c.fee_rate as feeRate
     ORDER BY toInteger(c.fee_rate);
@@ -118,6 +120,8 @@ defmodule LightningGraph.Neo4j.Query do
     |> Enum.map(fn result ->
       %{
         peer_alias: result["peerAlias"],
+        peer_pub_key: result["peerPubKey"],
+        start_channel_id: result["startChannelId"],
         base_fee: result["baseFee"],
         fee_rate: result["feeRate"]
       }
